@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knockturn Alley</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --ink: #1c1b19;
+    --muted: #8a867d;
+    --line: #dedad1;
+    --menu-bg: #fbfaf7;
+    --serif: "Cormorant Garamond", "EB Garamond", Georgia, serif;
+    --sans: "Inter", system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141413;
+      --ink: #e9e6df;
+      --muted: #85827b;
+      --line: #2c2b28;
+      --menu-bg: #1b1b19;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- Home ---------- */
+  #home {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 2.4rem;
+    transition: opacity .9s ease;
+  }
+  #home h1 {
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(2.6rem, 6vw, 4rem);
+    letter-spacing: .01em;
+  }
+  #enter {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: .72rem;
+    letter-spacing: .38em;
+    text-transform: lowercase;
+    color: var(--muted);
+    padding: .6rem 0 .6rem .38em;
+    border-bottom: 1px solid transparent;
+    transition: color .4s ease, border-color .4s ease;
+    animation: breathe 3.6s ease-in-out infinite;
+  }
+  #enter:hover, #enter:focus-visible { color: var(--ink); border-color: var(--ink); animation: none; outline: none; }
+  #enter.gone { opacity: 0 !important; pointer-events: none; animation: none; transition: opacity .5s ease; }
+  #gate {
+    position: absolute; top: calc(50% + 2.2rem);
+    display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    opacity: 0; visibility: hidden; transform: translateY(6px);
+    transition: opacity .6s ease .2s, transform .6s ease .2s, visibility .6s;
+  }
+  #gate.show { opacity: 1; visibility: visible; transform: none; }
+  #pw {
+    width: min(20rem, 78vw);
+    background: transparent; border: 0; border-bottom: 1px solid var(--line);
+    color: var(--ink); text-align: center;
+    font-family: var(--serif); font-style: italic; font-size: 1.2rem;
+    padding: .4rem 0; outline: none; border-radius: 0;
+    transition: border-color .3s ease;
+  }
+  #pw:focus { border-color: var(--muted); }
+  #pw::placeholder { color: var(--muted); opacity: .7; font-family: var(--sans); font-style: normal; font-weight: 300; font-size: .72rem; letter-spacing: .3em; }
+  #msg { min-height: 1em; font-family: var(--sans); font-weight: 300; font-size: .68rem; letter-spacing: .25em; color: var(--muted); text-transform: lowercase; }
+  #gate.shake #pw { animation: shake .4s ease; }
+  @keyframes shake { 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+  @keyframes breathe { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+
+  /* ---------- Header ---------- */
+  header {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: center; align-items: center;
+    padding: 1.6rem clamp(1.4rem, 4vw, 3rem);
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: .72rem;
+    letter-spacing: .22em;
+    text-transform: lowercase;
+    background: linear-gradient(var(--bg) 60%, transparent);
+    z-index: 10;
+  }
+  .menu { position: relative; }
+  .menu-toggle { display: flex; align-items: center; gap: .6em; letter-spacing: .22em; font-size: .72rem; font-weight: 300; font-family: var(--sans); }
+  .menu-toggle .chev { display: inline-block; width: .5em; height: .5em; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .3s ease; }
+  .menu.open .chev { transform: translateY(1px) rotate(225deg); }
+  .menu-list {
+    position: absolute; left: 50%; top: calc(100% + .9rem);
+    min-width: 13rem;
+    max-height: min(70vh, 34rem);
+    overflow-y: auto;
+    background: var(--menu-bg);
+    border: 1px solid var(--line);
+    padding: .7rem 0;
+    list-style: none;
+    opacity: 0; visibility: hidden; transform: translate(-50%, -6px);
+    text-align: center;
+    transition: opacity .25s ease, transform .25s ease, visibility .25s;
+  }
+  .menu.open .menu-list { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+  .menu-list a {
+    display: block;
+    padding: .5rem 1.3rem;
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    letter-spacing: .01em;
+    text-transform: none;
+    color: var(--muted);
+    transition: color .2s;
+  }
+  .menu-list a:hover, .menu-list a:focus-visible { color: var(--ink); outline: none; }
+  .menu-list a.current { color: var(--ink); font-style: italic; }
+
+  /* ---------- Poem ---------- */
+  #reader { display: none; min-height: 100%; }
+  main {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: clamp(8rem, 18vh, 11rem) 1.6rem 6rem;
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  main.fade { opacity: 0; transform: translateY(6px); }
+  .num {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: .68rem;
+    letter-spacing: .3em;
+    color: var(--muted);
+    margin-bottom: 1.4rem;
+  }
+  h2 {
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(2rem, 5vw, 2.6rem);
+    line-height: 1.15;
+    margin-bottom: .6rem;
+  }
+  .sub { font-style: italic; color: var(--muted); font-size: 1.05rem; margin-top: .2rem; }
+  .rule { width: 2.2rem; height: 1px; background: var(--ink); opacity: .35; margin: 2.2rem 0 2.4rem; }
+  .stanza { margin-bottom: 1.7em; }
+  .stanza p {
+    font-size: clamp(1.18rem, 2.4vw, 1.32rem);
+    line-height: 1.62;
+    padding-left: 1.4em;
+    text-indent: -1.4em;
+  }
+
+  nav.pager {
+    display: flex; justify-content: space-between; gap: 1rem;
+    margin-top: 5rem; padding-top: 1.6rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--sans); font-weight: 300;
+    font-size: .68rem; letter-spacing: .2em; text-transform: lowercase;
+  }
+  nav.pager a { color: var(--muted); transition: color .3s; max-width: 48%; }
+  nav.pager a:hover { color: var(--ink); }
+  nav.pager a span { display: block; font-family: var(--serif); font-style: italic; font-size: 1.05rem; letter-spacing: .01em; text-transform: none; margin-top: .35rem; color: var(--ink); }
+  nav.pager .next { text-align: right; margin-left: auto; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<section id="home">
+  <h1>Knockturn Alley</h1>
+  <button id="enter" type="button">click to enter</button>
+  <form id="gate" autocomplete="off">
+    <input id="pw" type="password" placeholder="password" aria-label="Password" autocomplete="current-password" spellcheck="false">
+    <p id="msg" aria-live="polite"></p>
+  </form>
+</section>
+
+<div id="reader">
+  <header>
+    <div class="menu" id="menu">
+      <button class="menu-toggle" id="menuToggle" type="button" aria-haspopup="true" aria-expanded="false">poems <span class="chev"></span></button>
+      <ul class="menu-list" id="menuList" role="menu"></ul>
+    </div>
+  </header>
+  <main id="poem"></main>
+</div>
+
+<script>
+const VAULT = {"salt": "+xffFB6xnjMgGLB1YZUskw==", "iv": "03tGiP5nGstCZJF1", "iter": 600000, "data": "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"};
+
+const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+let POEMS = [];
+function loadPoems(raw) {
+  POEMS = raw.map(([title, sub, body]) => ({
+    title, sub, slug: slugify(title),
+    stanzas: body.trim().split(/\n\s*\n/).map(s => s.split("\n"))
+  }));
+  list.innerHTML = POEMS.map(p => `<li role="none"><a role="menuitem" href="#${p.slug}" data-slug="${p.slug}">${esc(p.title)}</a></li>`).join("");
+}
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+
+const home = document.getElementById("home");
+const reader = document.getElementById("reader");
+const main = document.getElementById("poem");
+const menu = document.getElementById("menu");
+const toggle = document.getElementById("menuToggle");
+const list = document.getElementById("menuList");
+
+function setMenu(open) {
+  menu.classList.toggle("open", open);
+  toggle.setAttribute("aria-expanded", open);
+}
+toggle.addEventListener("click", e => { e.stopPropagation(); setMenu(!menu.classList.contains("open")); });
+document.addEventListener("click", e => { if (!menu.contains(e.target)) setMenu(false); });
+list.addEventListener("click", () => setMenu(false));
+
+function renderPoem(i) {
+  const p = POEMS[i];
+  const prev = POEMS[i - 1], next = POEMS[i + 1];
+  const html = `
+    <div class="num">${String(i + 1).padStart(2, "0")} / ${String(POEMS.length).padStart(2, "0")}</div>
+    <h2>${esc(p.title)}</h2>
+    ${p.sub ? `<div class="sub">${esc(p.sub)}</div>` : ""}
+    <div class="rule"></div>
+    ${p.stanzas.map(s => `<div class="stanza">${s.map(l => `<p>${esc(l)}</p>`).join("")}</div>`).join("")}
+    <nav class="pager">
+      ${prev ? `<a class="prev" href="#${prev.slug}">previous<span>${esc(prev.title)}</span></a>` : ""}
+      ${next ? `<a class="next" href="#${next.slug}">next<span>${esc(next.title)}</span></a>` : ""}
+    </nav>`;
+  main.classList.add("fade");
+  setTimeout(() => {
+    main.innerHTML = html;
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => main.classList.remove("fade"));
+  }, main.innerHTML ? 260 : 0);
+  document.title = `${p.title} · Knockturn Alley`;
+  list.querySelectorAll("a").forEach(a => a.classList.toggle("current", a.dataset.slug === p.slug));
+}
+
+let current = -1;
+function route() {
+  const slug = location.hash.replace(/^#/, "");
+  const i = POEMS.findIndex(p => p.slug === slug);
+  setMenu(false);
+  if (!POEMS.length) {
+    pending = slug;
+    reader.style.display = "none";
+    home.style.display = "flex";
+    home.style.opacity = 1;
+    if (slug) openGate();
+    return;
+  }
+  if (i === -1) {
+    current = -1;
+    reader.style.display = "none";
+    home.style.display = "flex";
+    requestAnimationFrame(() => home.style.opacity = 1);
+    main.innerHTML = "";
+    document.title = "Knockturn Alley";
+    enterBtn.classList.remove("gone");
+    gate.classList.remove("show");
+    return;
+  }
+  home.style.display = "none";
+  reader.style.display = "block";
+  current = i;
+  renderPoem(i);
+}
+
+const enterBtn = document.getElementById("enter");
+const gate = document.getElementById("gate");
+const pw = document.getElementById("pw");
+const msg = document.getElementById("msg");
+let pending = "";
+
+function goIn() {
+  home.style.opacity = 0;
+  const target = POEMS.find(p => p.slug === pending) ? pending : POEMS[0].slug;
+  pending = "";
+  setTimeout(() => {
+    if (location.hash.replace(/^#/, "") === target) route(); else location.hash = target;
+  }, 700);
+}
+function openGate() {
+  enterBtn.classList.add("gone");
+  gate.classList.add("show");
+  setTimeout(() => pw.focus(), 250);
+}
+enterBtn.addEventListener("click", () => { POEMS.length ? goIn() : openGate(); });
+
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const normalize = s => s.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+async function deriveKey(pass) {
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(normalize(pass)), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "PBKDF2", salt: b64(VAULT.salt), iterations: VAULT.iter, hash: "SHA-256" },
+    base, { name: "AES-GCM", length: 256 }, true, ["decrypt"]);
+}
+async function openVault(key) {
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(VAULT.iv) }, key, b64(VAULT.data));
+  loadPoems(JSON.parse(new TextDecoder().decode(plain)));
+}
+async function remember(key) {
+  try {
+    const raw = new Uint8Array(await crypto.subtle.exportKey("raw", key));
+    sessionStorage.setItem("ka-key", btoa(String.fromCharCode(...raw)));
+  } catch (e) {}
+}
+async function recall() {
+  try {
+    const k = sessionStorage.getItem("ka-key");
+    if (!k) return false;
+    const key = await crypto.subtle.importKey("raw", b64(k), "AES-GCM", false, ["decrypt"]);
+    await openVault(key);
+    return true;
+  } catch (e) { return false; }
+}
+
+gate.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!pw.value.trim()) return;
+  if (!window.crypto || !crypto.subtle) { msg.textContent = "please open this site over https"; return; }
+  msg.textContent = "…";
+  try {
+    const key = await deriveKey(pw.value);
+    await openVault(key);
+    await remember(key);
+    msg.textContent = "";
+    pw.blur();
+    goIn();
+  } catch (err) {
+    msg.textContent = "mischief not managed";
+    pw.value = "";
+    gate.classList.remove("shake"); void gate.offsetWidth; gate.classList.add("shake");
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") setMenu(false);
+  if (current === -1) {
+    if (e.key === "Enter" && document.activeElement === document.body) document.getElementById("enter").click();
+    return;
+  }
+  if (e.key === "ArrowRight" && POEMS[current + 1]) location.hash = POEMS[current + 1].slug;
+  if (e.key === "ArrowLeft" && POEMS[current - 1]) location.hash = POEMS[current - 1].slug;
+});
+
+window.addEventListener("hashchange", route);
+(async () => { if (window.crypto && crypto.subtle) await recall(); route(); })();
+</script>
+</body>
+</html>
